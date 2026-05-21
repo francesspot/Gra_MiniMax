@@ -345,12 +345,21 @@ int main() {
     return 1; // Zakończenie programu z kodem błędu
   }
 
+  int winsX = 0, winsO = 0, draws = 0; // Liczniki wygranych i remisów
+
   while (true) { // Zewnętrzna pętla ponownej gry
     initBoard(n); // Inicjalizacja planszy
-    char currentPlayer = 'X'; // Gracz zaczyna jako 'X'
+
+    char startPlayer;
+    cout << "Kto zaczyna? (X/O): ";
+    cin >> startPlayer;
+    char currentPlayer = (toupper(startPlayer) == 'O') ? 'O' : 'X'; // Gracz zaczyna jako wybrany znak
+
+    int moveCount = 0; // Licznik ruchów
 
     auto startTime = chrono::high_resolution_clock::now(); // Start pomiaru czasu
     while (true) {
+      cout << "\nRuch nr " << moveCount + 1 << ":\n"; // Wyświetlanie numeru ruchu
       printBoard(); // Wyświetlanie planszy
 
       if (currentPlayer == 'X') {
@@ -365,20 +374,27 @@ int main() {
           cout << "Nieprawidlowy ruch. Sprobuj ponownie." << endl;
           continue; // Powtórzenie ruchu gracza
         }
+        moveCount++; // Aktualizacja licznika ruchów
 
         if (checkWin(row, col, currentPlayer)) {
           printBoard();
           cout << "Gracz " << currentPlayer << " wygrywa!" << endl;
+          winsX++; // Aktualizacja licznika wygranych gracza X
           break; // Zakończenie gry
         }
       } else {
         cout << "Ruch AI (O)..." << endl;
+        auto aiStart = chrono::high_resolution_clock::now(); // Start pomiaru czasu ruchu AI
         pair<int, int> bestMove = findBestMove(); // Znalezienie najlepszego ruchu dla AI
+        auto aiEnd = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu ruchu AI
+        cout << "Czas ruchu AI: " << chrono::duration_cast<chrono::milliseconds>(aiEnd - aiStart).count() << " ms" << endl;
         makeMove(bestMove.first, bestMove.second, currentPlayer); // Wykonanie ruchu AI
+        moveCount++; // Aktualizacja licznika ruchów
 
         if (checkWin(bestMove.first, bestMove.second, currentPlayer)) {
           printBoard();
           cout << "Gracz " << currentPlayer << " wygrywa!" << endl;
+          winsO++; // Aktualizacja licznika wygranych AI
           break; // Zakończenie gry
         }
       }
@@ -386,6 +402,7 @@ int main() {
       if (isDraw()) {
         printBoard();
         cout << "Gra zakonczona remisem!" << endl;
+        draws++; // Aktualizacja licznika remisów
         break; // Zakończenie gry remisem
       }
 
@@ -394,6 +411,7 @@ int main() {
     auto endTime = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu
     auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime); // Obliczenie czasu trwania
     cout << "Czas gry: " << duration.count() << " ms" << endl;
+    cout << "Wyniki sesji  ->  X: " << winsX << "  |  O: " << winsO << "  |  Remisy: " << draws << endl;
 
     char again;
     cout << "Czy chcesz zagrac ponownie? (t/n): ";
