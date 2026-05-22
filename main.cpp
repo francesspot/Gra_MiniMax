@@ -159,19 +159,29 @@ vector<pair<int, int>> getAvailableMoves() {
 int evaluateLine(int countO, int countX) {
 
   if (countO == toWin - 1 && countX == 0) // Jeśli AI ma prawie wygraną linię, a gracz nie ma żadnych znaków w tej linii
+  {
     return 5000;
+  }
 
   if (countX == toWin - 1 && countO == 0) // Jeśli gracz ma prawie wygraną linię, a AI nie ma żadnych znaków w tej linii 
+  {
     return -5000;
+  }
 
   if (countO > 0 && countX > 0) // Jeśli obie strony mają znaki w tej linii, nie jest ona wartościowa dla żadnej ze stron
+  {
     return 0;
+  }
 
   if (countO > 0 && countX == 0) // Jeśli AI ma znaki w tej linii, a gracz nie ma żadnych znaków w tej linii
+  {
     return countO * countO * 10;
+  }
 
   if (countX > 0 && countO == 0) // Jeśli gracz ma znaki w tej linii, a AI nie ma żadnych znaków w tej linii
+  {
     return -(countX * countX * 10);
+  }
 
   return 0; // Jeśli linia jest pusta, nie jest ona wartościowa dla żadnej ze stron
 }
@@ -312,23 +322,43 @@ int minimax(bool isMax, int alpha, int beta, int depth) {
   }
 }
 
-pair<int, int> findBestMove() {
+pair<int,int> findBestMove() {
   int bestScore = -100000;
-  pair<int, int> bestMove = {-1, -1};
+  pair<int,int> bestMove = {-1,-1};
   auto moves = getAvailableMoves();
-
-  for (auto [i, j] : moves) {
-    board[i][j] = 'O'; // Ruch AI
-    int maxDepth[] = {0,0,0, 9,7,5, 4,4,3, 3,3};
-    int depth = (n <= 10) ? maxDepth[n] : 3;
-    int moveScore = minimax(false, -100000, 100000, depth - 1); // Ocena ruchu
-    board[i][j] = '.'; // Cofnięcie ruchu
-
-    if (moveScore > bestScore) {
-      bestMove = {i, j}; // Aktualizacja najlepszego ruchu
-      bestScore = moveScore; // Aktualizacja najlepszego wyniku
-      }
+  int maxDepth[] = {0,0,0, 9,7,5, 4,4,3, 3,3};
+  int depth = (n <= 10) ? maxDepth[n] : 3;
+ 
+  // Sprawdzenie, czy AI może wygrać w następnym ruchu
+  for (auto [i,j] : moves) {
+    board[i][j] = 'O';
+    if (checkWin(i,j,'O')) { 
+      board[i][j]='.'; 
+      return {i,j}; 
     }
+    board[i][j] = '.';
+  }
+ 
+  // Sprawdzenie, czy gracz może wygrać w następnym ruchu i zablokowanie go
+  for (auto [i,j] : moves) {
+    board[i][j] = 'X';
+    if (checkWin(i,j,'X')) { 
+      board[i][j]='.'; 
+      return {i,j}; 
+    }
+    board[i][j] = '.';
+  }
+ 
+  // Wykonanie minimax dla każdego możliwego ruchu i wybór najlepszego
+  for (auto [i,j] : moves) {
+    board[i][j] = 'O';
+    int moveScore = minimax(false, -100000, 100000, depth-1);
+    board[i][j] = '.';
+    if (moveScore > bestScore) {
+      bestScore = moveScore;
+      bestMove = {i,j};
+    }
+  }
   return bestMove;
 }
 
@@ -342,18 +372,18 @@ int main() {
 
   if (toWin > n) {
     cout << "Liczba znakow do wygrania nie moze byc wieksza niz rozmiar planszy." << endl;
-    return 1; // Zakończenie programu z kodem błędu
+    return 1;
   }
 
-  int winsX = 0, winsO = 0, draws = 0; // Liczniki wygranych i remisów
+  int winsX = 0, winsO = 0, draws = 0;
 
-  while (true) { // Zewnętrzna pętla ponownej gry
-    initBoard(n); // Inicjalizacja planszy
+  while (true) {
+    initBoard(n);
 
     char startPlayer;
-    cout << "Kto zaczyna? (X/O): ";
+    cout << "Kto zaczyna? (X/O): "; // Teraz wyświetli się czytelnie
     cin >> startPlayer;
-    char currentPlayer = (toupper(startPlayer) == 'O') ? 'O' : 'X'; // Gracz zaczyna jako wybrany znak
+    char currentPlayer = (toupper(startPlayer) == 'O') ? 'O' : 'X';
 
     int moveCount = 0; // Licznik ruchów
 
