@@ -34,11 +34,13 @@ bool checkWin(int row, int col, char player) {
     {1, 1}, // Przekątna "\"
     {1, -1} // Przekątna "/"
   };
-  // Sprawdzenie w każdej z 4 kierunków
+  // Sprawdzenie w każdym z 4 kierunków
   for (int d = 0; d < 4; d++) {
     int dr = directions[d][0]; // Kierunek wiersza
     int dc = directions[d][1]; // Kierunek kolumny
+
     int count = 1; // Licznik znaków gracza
+
     // Sprawdzenie w pozytywnym kierunku
     int i = row + dr;
     int j = col + dc;
@@ -72,7 +74,8 @@ bool isDraw() {
 
 vector<pair<int, int>> getAvailableMoves() {
   vector<pair<int, int>> moves;
-  // Dla małych plansz - sprawdzaj wszystko
+
+  // Dla małych plansz - sprawdzanie wszystkich pól
   if (n <= 7) {
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
@@ -83,7 +86,8 @@ vector<pair<int, int>> getAvailableMoves() {
     }
     return moves;
   }
-  // Dla dużych plansz - tylko okolica
+
+  // Dla dużych plansz - sprawdzenie tylko okolicy istniejących znaków
   vector<vector<bool>> used(n, vector<bool>(n, false));
   int radius = 2;
   for (int r = 0; r < n; r++) {
@@ -206,46 +210,47 @@ int minimax(bool isMax, int alpha, int beta, int depth) {
   }
   auto moves = getAvailableMoves();
   if (isMax) {
-    int bestScore = -100000;
+    int bestScore = -1000000; 
     for (auto [i, j] : moves) {
-      board[i][j] = 'O'; // Ruch AI
-      if (checkWin(i, j, 'O')) { // Sprawdzenie wygranej AI od razu po ruchu
-        board[i][j] = '.'; // Cofnięcie ruchu
+      board[i][j] = 'O'; 
+      if (checkWin(i, j, 'O')) { 
+        board[i][j] = '.'; 
         return 100000 + depth;
       }
-      int score = minimax(false, alpha, beta, depth - 1); // Rekurencyjne wywołanie dla ruchu gracza
-      board[i][j] = '.'; // Cofnięcie ruchu
-      bestScore = max(score, bestScore); // Aktualizacja najlepszego wyniku
-      alpha = max(alpha, bestScore); // Aktualizacja wartości alpha
+      int score = minimax(false, alpha, beta, depth - 1); 
+      board[i][j] = '.'; 
+      bestScore = max(score, bestScore); 
+      alpha = max(alpha, bestScore); 
       if (beta <= alpha) {
-        return bestScore; // Przycięcie
+        return bestScore; 
       }
     }
-    return bestScore; // Zwraca najlepszy wynik dla gracza X
+    return bestScore; 
   } else {
-    int bestScore = 100000;
+    int bestScore = 1000000; 
     for (auto [i, j] : moves) {
-      board[i][j] = 'X'; // Ruch gracza
-      if (checkWin(i, j, 'X')) { // Sprawdzenie wygranej gracza od razu po ruchu
-        board[i][j] = '.'; // Cofnięcie ruchu
+      board[i][j] = 'X'; 
+      if (checkWin(i, j, 'X')) { 
+        board[i][j] = '.'; 
         return -100000 - depth;
       }
-      int score = minimax(true, alpha, beta, depth - 1); // Rekurencyjne wywołanie dla ruchu AI
-      board[i][j] = '.'; // Cofnięcie ruchu
-      bestScore = min(score, bestScore); // Aktualizacja najlepszego wyniku
-      beta = min(beta, bestScore); // Aktualizacja wartości beta
+      int score = minimax(true, alpha, beta, depth - 1); 
+      board[i][j] = '.'; 
+      bestScore = min(score, bestScore); 
+      beta = min(beta, bestScore); 
       if (beta <= alpha) {
-        return bestScore; // Przycięcie
+        return bestScore; 
       }
     }
-    return bestScore; // Zwraca najlepszy wynik dla gracza O
+    return bestScore; 
   }
 }
 
 pair<int,int> findBestMove() {
-  int bestScore = -100000;
-  pair<int,int> bestMove = {-1,-1};
+  int bestScore = -1000000;
   auto moves = getAvailableMoves();
+  pair<int,int> bestMove = moves[0]; // Domyślnie pierwszy ruch jako najlepszy
+  
   int maxDepth[] = {0,0,0, 9,7,5, 4,4,3, 3,3};
   int depth = (n <= 10) ? maxDepth[n] : 3;
 
@@ -265,12 +270,12 @@ pair<int,int> findBestMove() {
 
   // Wykonanie minimax dla każdego możliwego ruchu i wybór najlepszego
   for (auto [i, j] : moves) {
-    board[i][j] = 'O'; // Ruch AI
-    int moveScore = minimax(false, -100000, 100000, depth - 1); // Ocena ruchu
-    board[i][j] = '.'; // Cofnięcie ruchu
+    board[i][j] = 'O'; 
+    int moveScore = minimax(false, -1000000, 1000000, depth - 1); 
+    board[i][j] = '.'; 
     if (moveScore > bestScore) {
-      bestScore = moveScore; // Aktualizacja najlepszego wyniku
-      bestMove = {i,j}; // Aktualizacja najlepszego ruchu
+      bestScore = moveScore; 
+      bestMove = {i,j}; 
     }
   }
   return bestMove;
@@ -300,8 +305,7 @@ bool clickedNewGame(int mx, int my) {
 }
 
 void drawBoard(sf::RenderWindow& win, const sf::Font& font,
-               const string& status, int winsX, int winsO, int draws,
-               bool gameOver, int moveCount, long long aiMs, long long gameMs) {
+  const string& status, int winsX, int winsO, int draws, bool gameOver, int moveCount, long long aiMs, long long gameMs) {
   float cs  = cellSize();
   float bx  = MARGIN;
   float by  = BOARD_OFF + MARGIN;
@@ -371,8 +375,7 @@ void drawBoard(sf::RenderWindow& win, const sf::Font& font,
   win.draw(st);
 
   // Wyniki sesji + numer ruchu
-  string sc = "X: "+to_string(winsX)+"  Remisy: "+to_string(draws)+"  O: "+to_string(winsO)
-            + "     Ruch nr: "+to_string(moveCount+1);
+  string sc = "X: "+to_string(winsX)+"  Remisy: "+to_string(draws)+"  O: "+to_string(winsO) + "     Ruch nr: "+to_string(moveCount+1);
   sf::Text scT(font, sc, 16);
   scT.setFillColor(sf::Color(100,100,100));
   auto scr = scT.getLocalBounds();
@@ -419,16 +422,6 @@ void drawBoard(sf::RenderWindow& win, const sf::Font& font,
 }
 
 int main() {
-  // Konfiguracja przez konsolę — tak samo jak w wersji tekstowej
-  cout << "Podaj rozmiar planszy (n x n): ";
-  cin >> n;
-  cout << "Podaj liczbe znakow do wygrania: ";
-  cin >> toWin;
-  if (toWin > n) {
-    cout << "Liczba znakow do wygrania nie moze byc wieksza niz rozmiar planszy." << endl;
-    return 1;
-  }
-
   sf::RenderWindow window(
     sf::VideoMode({(unsigned)WINDOW_W, (unsigned)WINDOW_H}),
     "Kolko i Krzyzyk"
@@ -437,9 +430,59 @@ int main() {
 
   sf::Font font;
   if (!font.openFromFile("C:/Windows/Fonts/arial.ttf")) {
-    cerr << "Brak fontu C:/Windows/Fonts/arial.ttf\n";
+    cerr << "Brak fontu arial.ttf\n";
     return 1;
   }
+
+  // Ekran konfiguracji — wybór rozmiaru planszy i liczby znaków
+  n     = 3;
+  toWin = 3;
+  bool configuring = true;
+
+  // Pomocnicza funkcja rysująca przycisk +/-
+  auto drawPlusMinus = [&](int val, float cx, float cy, const string& label) {
+    // Etykieta
+    sf::Text lbl(font, label, 18);
+    auto lb = lbl.getLocalBounds();
+    lbl.setOrigin({lb.size.x/2.f, lb.size.y/2.f});
+    lbl.setPosition({cx, cy - 45.f});
+    lbl.setFillColor(sf::Color(80,80,80));
+    window.draw(lbl);
+
+    // Przycisk -
+    sf::RectangleShape btnM({40.f, 40.f});
+    btnM.setOrigin({20.f, 20.f});
+    btnM.setPosition({cx - 60.f, cy});
+    btnM.setFillColor(sf::Color(180,80,60));
+    window.draw(btnM);
+    sf::Text tM(font, "-", 24);
+    auto mb2 = tM.getLocalBounds();
+    tM.setOrigin({mb2.size.x/2.f, mb2.size.y/2.f});
+    tM.setPosition({cx - 60.f, cy - 2.f});
+    tM.setFillColor(sf::Color::White);
+    window.draw(tM);
+
+    // Wartość
+    sf::Text tV(font, to_string(val), 28);
+    auto vb = tV.getLocalBounds();
+    tV.setOrigin({vb.size.x/2.f, vb.size.y/2.f});
+    tV.setPosition({cx, cy});
+    tV.setFillColor(sf::Color(40,40,40));
+    window.draw(tV);
+
+    // Przycisk +
+    sf::RectangleShape btnP({40.f, 40.f});
+    btnP.setOrigin({20.f, 20.f});
+    btnP.setPosition({cx + 60.f, cy});
+    btnP.setFillColor(sf::Color(60,140,100));
+    window.draw(btnP);
+    sf::Text tP(font, "+", 24);
+    auto pb = tP.getLocalBounds();
+    tP.setOrigin({pb.size.x/2.f, pb.size.y/2.f});
+    tP.setPosition({cx + 60.f, cy - 2.f});
+    tP.setFillColor(sf::Color::White);
+    window.draw(tP);
+  };
 
   int winsX = 0, winsO = 0, draws = 0; // Liczniki wygranych i remisów
 
@@ -449,9 +492,9 @@ int main() {
   bool   gameOver;
   bool   aiThinking;
   int    moveCount;
-  long long aiMs   = -1;  // Czas ostatniego ruchu AI (-1 = jeszcze nie grał)
+  long long aiMs   = -1;  // Czas ostatniego ruchu AI w milisekundach (-1 oznacza jeszcze nie grało)
   long long gameMs =  0;  // Czas trwania całej gry
-  bool   choosingPlayer = true; // Ekran wyboru kto zaczyna
+  bool   choosingPlayer = false;
 
   chrono::high_resolution_clock::time_point startTime;
 
@@ -475,6 +518,26 @@ int main() {
         if (mb->button == sf::Mouse::Button::Left) {
           int mx = mb->position.x, my = mb->position.y;
 
+          // Ekran konfiguracji — przyciski +/-
+          if (configuring) {
+            float cx1 = WINDOW_W/2.f - 120.f; // centrum kontrolki rozmiaru
+            float cx2 = WINDOW_W/2.f + 120.f; // centrum kontrolki znaków
+            float cy  = 340.f;
+            // Rozmiar planszy -
+            if (mx>=cx1-80&&mx<=cx1-40&&my>=cy-20&&my<=cy+20) { if(n>3){n--;if(toWin>n)toWin=n;} }
+            // Rozmiar planszy +
+            if (mx>=cx1+40&&mx<=cx1+80&&my>=cy-20&&my<=cy+20) { if(n<10)n++; }
+            // Znaki do wygranej -
+            if (mx>=cx2-80&&mx<=cx2-40&&my>=cy-20&&my<=cy+20) { if(toWin>3)toWin--; }
+            // Znaki do wygranej +
+            if (mx>=cx2+40&&mx<=cx2+80&&my>=cy-20&&my<=cy+20) { if(toWin<min(n,6))toWin++; }
+            // Przycisk Dalej
+            if (mx>=WINDOW_W/2-80&&mx<=WINDOW_W/2+80&&my>=450&&my<=500) {
+              configuring = false; choosingPlayer = true;
+            }
+            continue;
+          }
+
           // Ekran wyboru kto zaczyna
           if (choosingPlayer) {
             // Przycisk X (lewy)
@@ -490,7 +553,7 @@ int main() {
 
           // Nowa gra po kliknięciu przycisku
           if (gameOver && clickedNewGame(mx, my)) {
-            choosingPlayer = true;
+            configuring = true; choosingPlayer = false;
             continue;
           }
 
@@ -558,7 +621,7 @@ int main() {
       continue;
     }
 
-    // Ruch AI — poza pętlą zdarzeń żeby okno się nie zawieszało
+    // Ruch AI - wykonywany poza pętlą zdarzeń, aby uniknąć blokowania interfejsu podczas myślenia AI
     if (aiThinking && !gameOver) {
       auto aiStart = chrono::high_resolution_clock::now(); // Start pomiaru czasu ruchu AI
       auto [r, c] = findBestMove(); // Znalezienie najlepszego ruchu dla AI
@@ -579,7 +642,24 @@ int main() {
     }
 
     window.clear(sf::Color(235,235,228));
-    drawBoard(window, font, status, winsX, winsO, draws, gameOver, moveCount, aiMs, gameMs);
+    if (configuring) {
+      drawPlusMinus(n, WINDOW_W/2.f - 120.f, 340.f, "Rozmiar planszy");
+      drawPlusMinus(toWin, WINDOW_W/2.f + 120.f, 340.f, "Znakow do wygranej");
+      
+      sf::RectangleShape btnN({160.f, 50.f});
+      btnN.setOrigin({80.f, 25.f});
+      btnN.setPosition({WINDOW_W/2.f, 475.f});
+      btnN.setFillColor(sf::Color(60,120,180));
+      window.draw(btnN);
+      sf::Text tN(font, "Dalej", 22);
+      auto nr = tN.getLocalBounds();
+      tN.setOrigin({nr.size.x/2.f, nr.size.y/2.f});
+      tN.setPosition({WINDOW_W/2.f, 472.f});
+      tN.setFillColor(sf::Color::White);
+      window.draw(tN);
+    } else {
+      drawBoard(window, font, status, winsX, winsO, draws, gameOver, moveCount, aiMs, gameMs);
+    }
     window.display();
   }
   return 0; // Zakończenie programu

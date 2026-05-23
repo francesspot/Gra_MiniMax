@@ -30,21 +30,17 @@ void printBoard() {
 }
 
 bool makeMove(int row, int col, char player) {
-
   if (row < 0 || row >= n || col < 0 || col >= n) {
     return false; // Nieprawidłowe współrzędne
   }
-
   if (board[row][col] != '.') {
     return false; // Pole jest już zajęte
   }
-
   board[row][col] = player;
   return true;
 }
 
 bool checkWin(int row, int col, char player) {
-
   int directions[4][2] = 
   {
     {0, 1}, // Poziom
@@ -53,17 +49,15 @@ bool checkWin(int row, int col, char player) {
     {1, -1} // Przekątna "/"
   };
 
-  // Sprawdzenie w każdej z 4 kierunków
+  // Sprawdzenie w każdym z 4 kierunków
   for (int d = 0; d < 4; d++) {
     int dr = directions[d][0]; // Kierunek wiersza
     int dc = directions[d][1]; // Kierunek kolumny
-
     int count = 1; // Licznik znaków gracza
 
     // Sprawdzenie w pozytywnym kierunku
     int i = row + dr;
     int j = col + dc;
-
     while (i >= 0 && i < n && j >= 0 && j < n && board[i][j] == player) {
       count++;
       i += dr;
@@ -73,7 +67,6 @@ bool checkWin(int row, int col, char player) {
     // Sprawdzenie w negatywnym kierunku
     i = row - dr;
     j = col - dc;
-
     while (i >= 0 && i < n && j >= 0 && j < n && board[i][j] == player) {
       count++;
       i -= dr;
@@ -100,47 +93,37 @@ bool isDraw() {
 }
 
 vector<pair<int, int>> getAvailableMoves() {
-
   vector<pair<int, int>> moves;
 
-  // Dla małych plansz - sprawdzaj wszystko
+  // Dla małych plansz - sprawdzanie wszystkich pól
   if (n <= 7) {
-
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-
         if (board[i][j] == '.') {
           moves.push_back({i, j});
         }
       }
     }
-
     return moves;
   }
 
-  // Dla dużych plansz - tylko okolica
+  // Dla dużych plansz - sprawdzenie tylko okolicy istniejących znaków
   vector<vector<bool>> used(n, vector<bool>(n, false));
-
   int radius = 2;
 
   for (int r = 0; r < n; r++) {
     for (int c = 0; c < n; c++) {
-
       if (board[r][c] == '.') {
         continue;
       }
-
       for (int dr = -radius; dr <= radius; dr++) {
         for (int dc = -radius; dc <= radius; dc++) {
-
           int nr = r + dr;
           int nc = c + dc;
-
           if (nr >= 0 && nr < n &&
               nc >= 0 && nc < n &&
               board[nr][nc] == '.' &&
               !used[nr][nc]) {
-
             moves.push_back({nr, nc});
             used[nr][nc] = true;
           }
@@ -152,55 +135,30 @@ vector<pair<int, int>> getAvailableMoves() {
   if (moves.empty()) {
     moves.push_back({n / 2, n / 2});
   }
-
   return moves;
 }
 
 int evaluateLine(int countO, int countX) {
-
-  if (countO == toWin - 1 && countX == 0) // Jeśli AI ma prawie wygraną linię, a gracz nie ma żadnych znaków w tej linii
-  {
-    return 5000;
-  }
-
-  if (countX == toWin - 1 && countO == 0) // Jeśli gracz ma prawie wygraną linię, a AI nie ma żadnych znaków w tej linii 
-  {
-    return -5000;
-  }
-
-  if (countO > 0 && countX > 0) // Jeśli obie strony mają znaki w tej linii, nie jest ona wartościowa dla żadnej ze stron
-  {
-    return 0;
-  }
-
-  if (countO > 0 && countX == 0) // Jeśli AI ma znaki w tej linii, a gracz nie ma żadnych znaków w tej linii
-  {
-    return countO * countO * 10;
-  }
-
-  if (countX > 0 && countO == 0) // Jeśli gracz ma znaki w tej linii, a AI nie ma żadnych znaków w tej linii
-  {
-    return -(countX * countX * 10);
-  }
-
-  return 0; // Jeśli linia jest pusta, nie jest ona wartościowa dla żadnej ze stron
+  if (countO == toWin - 1 && countX == 0) return 5000;
+  if (countX == toWin - 1 && countO == 0) return -5000;
+  if (countO > 0 && countX > 0) return 0;
+  if (countO > 0 && countX == 0) return countO * countO * 10;
+  if (countX > 0 && countO == 0) return -(countX * countX * 10);
+  return 0; 
 }
 
 int evaluateBoard() {
   int score = 0;
-
   int center = n / 2; // Środek planszy
 
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++) {
-
       int distanceToCenter = abs(i - center) + abs(j - center); // Odległość od środka
       int proximityScore = (n - distanceToCenter) * 5; // Premia za bliskość do środka
-
       if (board[i][j] == 'O') {
-        score += proximityScore; // Premia za bliskość do środka
+        score += proximityScore;
       } else if (board[i][j] == 'X') {
-        score -= proximityScore; // Kara za bliskość do środka
+        score -= proximityScore;
       }
     }
   }
@@ -210,13 +168,10 @@ int evaluateBoard() {
     for (int j = 0; j <= n - toWin; j++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i][j + k] == 'O') {
-          countO++;
-        } else if (board[i][j + k] == 'X') {
-          countX++;
-        }
+        if (board[i][j + k] == 'O') countO++;
+        else if (board[i][j + k] == 'X') countX++;
       }
-      score += evaluateLine(countO, countX); // Dodanie oceny linii do całkowitego wyniku
+      score += evaluateLine(countO, countX); 
     }
   }
   // Ocena pionowych linii
@@ -224,13 +179,10 @@ int evaluateBoard() {
     for (int i = 0; i <= n - toWin; i++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i + k][j] == 'O') {
-          countO++;
-        } else if (board[i + k][j] == 'X') {
-          countX++;
-        }
+        if (board[i + k][j] == 'O') countO++;
+        else if (board[i + k][j] == 'X') countX++;
       }
-      score += evaluateLine(countO, countX); // Dodanie oceny linii do całkowitego wyniku
+      score += evaluateLine(countO, countX); 
     }
   }
   // Ocena przekątnych "\"
@@ -238,28 +190,21 @@ int evaluateBoard() {
     for (int j = 0; j <= n - toWin; j++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i + k][j + k] == 'O') {
-          countO++;
-        } else if (board[i + k][j + k] == 'X') {
-          countX++;
-        }
+        if (board[i + k][j + k] == 'O') countO++;
+        else if (board[i + k][j + k] == 'X') countX++;
       }
-      score += evaluateLine(countO, countX); // Dodanie oceny linii do całkowitego wyniku
+      score += evaluateLine(countO, countX); 
     }
   }
-
-    // Ocena przekątnych "/"
+  // Ocena przekątnych "/"
   for (int i = 0; i <= n - toWin; i++) {
     for (int j = toWin - 1; j < n; j++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i + k][j - k] == 'O') {
-          countO++;
-        } else if (board[i + k][j - k] == 'X') {
-          countX++;
-        }
+        if (board[i + k][j - k] == 'O') countO++;
+        else if (board[i + k][j - k] == 'X') countX++;
       }
-      score += evaluateLine(countO, countX); // Dodanie oceny linii do całkowitego wyniku
+      score += evaluateLine(countO, countX); 
     }
   }
   return score;
@@ -269,94 +214,77 @@ int minimax(bool isMax, int alpha, int beta, int depth) {
   if (isDraw()) {
     return 0; // Remis
   }
-
   if (depth == 0) {
     return evaluateBoard(); // Ocena planszy na podstawie aktualnej sytuacji
   }
-
+  auto moves = getAvailableMoves();
   if (isMax) {
-    int bestScore = -100000;
-
-    auto moves = getAvailableMoves(); // Pobranie dostępnych ruchów
-
+    int bestScore = -1000000; 
     for (auto [i, j] : moves) {
-      board[i][j] = 'O'; // Ruch AI
-
-      if (checkWin(i, j, 'O')) { // Sprawdzenie wygranej AI od razu po ruchu
-        board[i][j] = '.'; // Cofnięcie ruchu
+      board[i][j] = 'O'; 
+      if (checkWin(i, j, 'O')) { 
+        board[i][j] = '.'; 
         return 100000 + depth;
       }
-
-      int score = minimax(false, alpha, beta, depth - 1); // Rekurencyjne wywołanie dla ruchu gracza
-      board[i][j] = '.'; // Cofnięcie ruchu
-
-      bestScore = max(score, bestScore); // Aktualizacja najlepszego wyniku
-      alpha = max(alpha, bestScore); // Aktualizacja wartości alpha
+      int score = minimax(false, alpha, beta, depth - 1); 
+      board[i][j] = '.'; 
+      bestScore = max(score, bestScore); 
+      alpha = max(alpha, bestScore); 
       if (beta <= alpha) {
-        return bestScore; // Przycięcie
-        }
+        return bestScore; 
       }
-    return bestScore; // Zwraca najlepszy wynik dla gracza X
+    }
+    return bestScore; 
   } else {
-    int bestScore = 100000;
-    auto moves = getAvailableMoves(); // Pobranie dostępnych ruchów
-
+    int bestScore = 1000000; 
     for (auto [i, j] : moves) {
-      board[i][j] = 'X'; // Ruch gracza
-
-      if (checkWin(i, j, 'X')) { // Sprawdzenie wygranej gracza od razu po ruchu
-        board[i][j] = '.'; // Cofnięcie ruchu
+      board[i][j] = 'X'; 
+      if (checkWin(i, j, 'X')) { 
+        board[i][j] = '.'; 
         return -100000 - depth;
       }
-
-      int score = minimax(true, alpha, beta, depth - 1); // Rekurencyjne wywołanie dla ruchu AI
-      board[i][j] = '.'; // Cofnięcie ruchu
-
-      bestScore = min(score, bestScore); // Aktualizacja najlepszego wyniku
-      beta = min(beta, bestScore); // Aktualizacja wartości beta
+      int score = minimax(true, alpha, beta, depth - 1); 
+      board[i][j] = '.'; 
+      bestScore = min(score, bestScore); 
+      beta = min(beta, bestScore); 
       if (beta <= alpha) {
-          return bestScore; // Przycięcie
-        }
+        return bestScore; 
       }
-    return bestScore; // Zwraca najlepszy wynik dla gracza O
+    }
+    return bestScore; 
   }
 }
 
 pair<int,int> findBestMove() {
-  int bestScore = -100000;
-  pair<int,int> bestMove = {-1,-1};
+  int bestScore = -1000000; 
   auto moves = getAvailableMoves();
+  pair<int,int> bestMove = moves[0]; // Domyślnie pierwszy ruch jako najlepszy
+  
   int maxDepth[] = {0,0,0, 9,7,5, 4,4,3, 3,3};
   int depth = (n <= 10) ? maxDepth[n] : 3;
- 
+
   // Sprawdzenie, czy AI może wygrać w następnym ruchu
   for (auto [i,j] : moves) {
     board[i][j] = 'O';
-    if (checkWin(i,j,'O')) { 
-      board[i][j]='.'; 
-      return {i,j}; 
-    }
+    if (checkWin(i,j,'O')) { board[i][j]='.'; return {i,j}; }
     board[i][j] = '.';
   }
- 
+
   // Sprawdzenie, czy gracz może wygrać w następnym ruchu i zablokowanie go
   for (auto [i,j] : moves) {
     board[i][j] = 'X';
-    if (checkWin(i,j,'X')) { 
-      board[i][j]='.'; 
-      return {i,j}; 
-    }
+    if (checkWin(i,j,'X')) { board[i][j]='.'; return {i,j}; }
     board[i][j] = '.';
   }
- 
+
   // Wykonanie minimax dla każdego możliwego ruchu i wybór najlepszego
-  for (auto [i,j] : moves) {
-    board[i][j] = 'O';
-    int moveScore = minimax(false, -100000, 100000, depth-1);
-    board[i][j] = '.';
+  for (auto [i, j] : moves) {
+    board[i][j] = 'O'; 
+    int moveScore = minimax(false, -1000000, 1000000, depth - 1); 
+    board[i][j] = '.'; 
     if (moveScore > bestScore) {
-      bestScore = moveScore;
-      bestMove = {i,j};
+      bestScore = moveScore; 
+      bestMove = {i,j}; 
     }
   }
   return bestMove;
@@ -364,6 +292,11 @@ pair<int,int> findBestMove() {
 
 
 int main() {
+  // Wyświetlenie informacji o grze
+  cout << "======================================\n";
+  cout << "       KOLKO I KRZYZYK (MINIMAX)      \n";
+  cout << "======================================\n\n";
+
   cout << "Podaj rozmiar planszy (n x n): ";
   cin >> n;
 
@@ -381,16 +314,16 @@ int main() {
     initBoard(n);
 
     char startPlayer;
-    cout << "Kto zaczyna? (X/O): "; // Teraz wyświetli się czytelnie
+    cout << "Kto zaczyna? (X/O): "; 
     cin >> startPlayer;
     char currentPlayer = (toupper(startPlayer) == 'O') ? 'O' : 'X';
 
     int moveCount = 0; // Licznik ruchów
 
-    auto startTime = chrono::high_resolution_clock::now(); // Start pomiaru czasu
+    auto startTime = chrono::high_resolution_clock::now(); // Start pomiaru czasu całej gry
     while (true) {
-      cout << "\nRuch nr " << moveCount + 1 << ":\n"; // Wyświetlanie numeru ruchu
-      printBoard(); // Wyświetlanie planszy
+      cout << "\nRuch nr " << moveCount + 1 << ":\n"; 
+      printBoard(); 
 
       if (currentPlayer == 'X') {
         int row, col;
@@ -402,54 +335,56 @@ int main() {
 
         if (!makeMove(row, col, currentPlayer)) {
           cout << "Nieprawidlowy ruch. Sprobuj ponownie." << endl;
-          continue; // Powtórzenie ruchu gracza
+          continue; 
         }
-        moveCount++; // Aktualizacja licznika ruchów
+        moveCount++; 
 
         if (checkWin(row, col, currentPlayer)) {
           printBoard();
           cout << "Gracz " << currentPlayer << " wygrywa!" << endl;
-          winsX++; // Aktualizacja licznika wygranych gracza X
-          break; // Zakończenie gry
+          winsX++; 
+          break; 
         }
       } else {
         cout << "Ruch AI (O)..." << endl;
-        auto aiStart = chrono::high_resolution_clock::now(); // Start pomiaru czasu ruchu AI
-        pair<int, int> bestMove = findBestMove(); // Znalezienie najlepszego ruchu dla AI
-        auto aiEnd = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu ruchu AI
+        auto aiStart = chrono::high_resolution_clock::now(); 
+        pair<int, int> bestMove = findBestMove(); 
+        auto aiEnd = chrono::high_resolution_clock::now(); 
         cout << "Czas ruchu AI: " << chrono::duration_cast<chrono::milliseconds>(aiEnd - aiStart).count() << " ms" << endl;
-        makeMove(bestMove.first, bestMove.second, currentPlayer); // Wykonanie ruchu AI
-        moveCount++; // Aktualizacja licznika ruchów
+        makeMove(bestMove.first, bestMove.second, currentPlayer); 
+        moveCount++; 
 
         if (checkWin(bestMove.first, bestMove.second, currentPlayer)) {
           printBoard();
           cout << "Gracz " << currentPlayer << " wygrywa!" << endl;
-          winsO++; // Aktualizacja licznika wygranych AI
-          break; // Zakończenie gry
+          winsO++; 
+          break; 
         }
       }
 
       if (isDraw()) {
         printBoard();
         cout << "Gra zakonczona remisem!" << endl;
-        draws++; // Aktualizacja licznika remisów
-        break; // Zakończenie gry remisem
+        draws++; 
+        break; 
       }
 
-      currentPlayer = (currentPlayer == 'X') ? 'O' : 'X'; // Zmiana gracza
+      currentPlayer = (currentPlayer == 'X') ? 'O' : 'X'; 
     }
-    auto endTime = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu
-    auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime); // Obliczenie czasu trwania
-    cout << "Czas gry: " << duration.count() << " ms" << endl;
+    
+    auto endTime = chrono::high_resolution_clock::now(); 
+    auto totalMs = chrono::duration_cast<chrono::milliseconds>(endTime - startTime).count(); 
+    
+    cout << "Czas gry: " << (totalMs / 1000) << "s " << (totalMs % 1000) << "ms" << endl;
     cout << "Wyniki sesji  ->  X: " << winsX << "  |  O: " << winsO << "  |  Remisy: " << draws << endl;
 
     char again;
-    cout << "Czy chcesz zagrac ponownie? (t/n): ";
+    cout << "\nCzy chcesz zagrac ponownie? (t/n): ";
     cin >> again;
     if (tolower(again) != 't') {
-      break; // Wyjście z zewnętrznej pętli
+      break; 
     }
   }
 
-  return 0; // Zakończenie programu
+  return 0; 
 }
