@@ -139,12 +139,27 @@ vector<pair<int, int>> getAvailableMoves() {
 }
 
 int evaluateLine(int countO, int countX) {
-  if (countO == toWin - 1 && countX == 0) return 5000;
-  if (countX == toWin - 1 && countO == 0) return -5000;
-  if (countO > 0 && countX > 0) return 0;
-  if (countO > 0 && countX == 0) return countO * countO * 10;
-  if (countX > 0 && countO == 0) return -(countX * countX * 10);
-  return 0; 
+  if (countO == toWin - 1 && countX == 0) // Jeśli AI ma prawie wygraną linię, a gracz nie ma żadnych znaków w tej linii
+  {
+    return 5000;
+  }
+  if (countX == toWin - 1 && countO == 0) // Jeśli gracz ma prawie wygraną linię, a AI nie ma żadnych znaków w tej linii
+  {
+    return -5000;
+  }
+  if (countO > 0 && countX > 0) // Jeśli obie strony mają znaki w tej linii, nie jest ona wartościowa dla żadnej ze stron
+  {
+    return 0;
+  }
+  if (countO > 0 && countX == 0) // Jeśli AI ma znaki w tej linii, a gracz nie ma żadnych znaków w tej linii
+  {
+    return countO * countO * 10;
+  }
+  if (countX > 0 && countO == 0) // Jeśli gracz ma znaki w tej linii, a AI nie ma żadnych znaków w tej linii
+  {
+    return -(countX * countX * 10);
+  }
+  return 0; // Jeśli linia jest pusta, nie jest ona wartościowa dla żadnej ze stron
 }
 
 int evaluateBoard() {
