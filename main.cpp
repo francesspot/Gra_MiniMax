@@ -57,14 +57,18 @@ bool checkWin(int row, int col, char player) {
     int i = row + dr;
     int j = col + dc;
     while (i >= 0 && i < n && j >= 0 && j < n && board[i][j] == player) {
-      count++; i += dr; j += dc;
+      count++;
+      i += dr;
+      j += dc;
     }
 
     // Zliczanie w kierunku ujemnym
     i = row - dr;
     j = col - dc;
     while (i >= 0 && i < n && j >= 0 && j < n && board[i][j] == player) {
-      count++; i -= dr; j -= dc;
+      count++;
+      i -= dr;
+      j -= dc;
     }
 
     if (count >= toWin) {
@@ -85,7 +89,7 @@ bool isDraw() {
   return true;
 }
 
-// Funkcja do generowania listy dostępnych ruchów, optymalizowana dla większych plansz
+// Zwraca listę dostępnych ruchów. Dla większych plansz skupia się na polach blisko już zajętych.
 vector<pair<int, int>> getAvailableMoves() {
   vector<pair<int, int>> moves;
 
@@ -105,7 +109,9 @@ vector<pair<int, int>> getAvailableMoves() {
 
   for (int r = 0; r < n; r++) {
     for (int c = 0; c < n; c++) {
-      if (board[r][c] == '.') continue;
+      if (board[r][c] == '.') {
+        continue;
+      }
       
       for (int dr = -radius; dr <= radius; dr++) {
         for (int dc = -radius; dc <= radius; dc++) {
@@ -139,12 +145,22 @@ vector<pair<int, int>> getAvailableMoves() {
 }
 
 int evaluateLine(int countO, int countX) {
-  if (countO == toWin - 1 && countX == 0) return 5000;
-  if (countX == toWin - 1 && countO == 0) return -5000;
-  if (countO > 0 && countX > 0) return 0;
-  if (countO > 0 && countX == 0) return countO * countO * 10;
-  if (countX > 0 && countO == 0) return -(countX * countX * 10);
-  return 0;
+  if (countO == toWin - 1 && countX == 0) {
+    return 5000; // Jeśli AI ma prawie wygraną linię, a gracz nie ma żadnych znaków w tej linii
+  }
+  if (countX == toWin - 1 && countO == 0) {
+    return -5000; // Jeśli gracz ma prawie wygraną linię, a AI nie ma żadnych znaków w tej linii
+  }
+  if (countO > 0 && countX > 0) {
+    return 0; // Jeśli obie strony mają znaki w tej linii, nie jest ona wartościowa dla żadnej ze stron
+  }
+  if (countO > 0 && countX == 0) {
+    return countO * countO * 10; // Jeśli AI ma znaki w tej linii, a gracz nie ma żadnych znaków w tej linii
+  }
+  if (countX > 0 && countO == 0) {
+    return -(countX * countX * 10); // Jeśli gracz ma znaki w tej linii, a AI nie ma żadnych znaków w tej linii
+  }
+  return 0; // Jeśli linia jest pusta, nie jest ona wartościowa dla żadnej ze stron
 }
 
 int evaluateBoard() {
@@ -169,8 +185,11 @@ int evaluateBoard() {
     for (int j = 0; j <= n - toWin; j++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i][j + k] == 'O') countO++;
-        else if (board[i][j + k] == 'X') countX++;
+        if (board[i][j + k] == 'O') {
+          countO++;
+        } else if (board[i][j + k] == 'X') {
+          countX++;
+        }
       }
       score += evaluateLine(countO, countX); 
     }
@@ -179,8 +198,11 @@ int evaluateBoard() {
     for (int i = 0; i <= n - toWin; i++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i + k][j] == 'O') countO++;
-        else if (board[i + k][j] == 'X') countX++;
+        if (board[i + k][j] == 'O') {
+          countO++;
+        } else if (board[i + k][j] == 'X') {
+          countX++;
+        }
       }
       score += evaluateLine(countO, countX); 
     }
@@ -189,8 +211,11 @@ int evaluateBoard() {
     for (int j = 0; j <= n - toWin; j++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i + k][j + k] == 'O') countO++;
-        else if (board[i + k][j + k] == 'X') countX++;
+        if (board[i + k][j + k] == 'O') {
+          countO++;
+        } else if (board[i + k][j + k] == 'X') {
+          countX++;
+        }
       }
       score += evaluateLine(countO, countX); 
     }
@@ -199,8 +224,11 @@ int evaluateBoard() {
     for (int j = toWin - 1; j < n; j++) {
       int countO = 0, countX = 0;
       for (int k = 0; k < toWin; k++) {
-        if (board[i + k][j - k] == 'O') countO++;
-        else if (board[i + k][j - k] == 'X') countX++;
+        if (board[i + k][j - k] == 'O') {
+          countO++;
+        } else if (board[i + k][j - k] == 'X') {
+          countX++;
+        }
       }
       score += evaluateLine(countO, countX); 
     }
@@ -216,7 +244,7 @@ int minimax(bool isMax, int alpha, int beta, int depth) {
   if (depth == 0) {
     return evaluateBoard();
   }
-  
+
   auto moves = getAvailableMoves();
   if (moves.empty()) {
     return evaluateBoard();
@@ -305,12 +333,16 @@ int main() {
 
   cout << "Podaj rozmiar planszy (n x n): ";
   if (!(cin >> n)) { 
-    n = 3; cin.clear(); cin.ignore(10000, '\n'); 
+    n = 3; 
+    cin.clear(); 
+    cin.ignore(10000, '\n'); 
   }
 
   cout << "Podaj liczbe znakow do wygrania: ";
   if (!(cin >> toWin)) { 
-    toWin = 3; cin.clear(); cin.ignore(10000, '\n'); 
+    toWin = 3; 
+    cin.clear(); 
+    cin.ignore(10000, '\n'); 
   }
 
   int winLimit = min(n, 6);
@@ -341,7 +373,7 @@ int main() {
         cout << "\nRuch nr " << moveCount + 1 << " - tura gracza X\n";
         cout << "Podaj wiersz i kolumne (oddzielone spacja): ";
         
-        // Obsługa nieprawidłowych danych wejściowych - zabezpieczenie przed błędami podczas wprowadzania ruchu przez gracza
+        // Obsługa nieprawidłowych danych wejściowych
         if (!(cin >> row >> col)) {
           cin.clear();
           cin.ignore(10000, '\n');
