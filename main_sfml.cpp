@@ -434,7 +434,7 @@ int main() {
   window.setFramerateLimit(60);
 
   sf::Font font;
-  if (!font.openFromFile("C:/Windows/Fonts/arial.ttf")) {
+  if (!font.openFromFile("arial.ttf")) {
     cerr << "Brak fontu arial.ttf\n";
     return 1;
   }
