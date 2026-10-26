@@ -6,14 +6,14 @@
 
 > 🎓 Projekt na przedmiot **Projektowanie i Analiza Algorytmów** (Politechnika Wrocławska)
 
-Kółko i krzyżyk, ale na sterydach 💪 — plansza od 3×3 do 10×10, do wygranej trzeba ułożyć od 3 do 6 znaków w rzędzie, a przeciwnikiem jest komputer, który myśli algorytmem **MiniMax z obcinaniem alfa-beta**. 🤖
+Uogólnione kółko i krzyżyk z przeciwnikiem komputerowym opartym na algorytmie **MiniMax z obcinaniem alfa-beta**. Plansza od 3×3 do 10×10, do wygranej potrzeba od 3 do 6 znaków w rzędzie.
 
 ## ✨ Co zrobiłem
 
-- 🧠 **AI** — najpierw sprawdza, czy może wygrać albo musi zablokować gracza, a potem przeszukuje drzewo gry MiniMaxem z cięciami alfa-beta
-- 📏 **Głębokość dopasowana do planszy** — 9 ruchów w przód na 3×3, mniej na dużych planszach, żeby AI myślało szybko
-- ⚖️ **Heurystyka** oceny pozycji — liczy linie, które może jeszcze wygrać każdy gracz, i premiuje środek planszy
-- 🖥️ Dwie wersje: **konsolowa** i **graficzna w SFML 3** (sterowanie myszą, licznik wyników, czas ruchu AI)
+- **AI** — najpierw sprawdza, czy może wygrać albo musi zablokować gracza, a potem przeszukuje drzewo gry MiniMaxem z cięciami alfa-beta
+- **Głębokość dopasowana do planszy** — 9 ruchów w przód na 3×3, mniej na dużych planszach, żeby AI myślało szybko
+- **Heurystyka** oceny pozycji — liczy linie, które może jeszcze wygrać każdy gracz, i premiuje środek planszy
+- Dwie wersje: **konsolowa** i **graficzna w SFML 3** (sterowanie myszą, licznik wyników, czas ruchu AI)
 
 ## 🛠️ Technologie
 
@@ -29,4 +29,4 @@ g++ -std=c++17 -O2 main.cpp -o main && ./main
 g++ -std=c++17 -O2 main_sfml.cpp -o game -lsfml-graphics -lsfml-window -lsfml-system && ./game
 ```
 
-Na Windowsie wystarczy odpalić `game.exe` — biblioteki SFML są w repo. 🎮
+Dla Windowsa w repozytorium jest gotowy `game.exe` wraz z bibliotekami SFML.
