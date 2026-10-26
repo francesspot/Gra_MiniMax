@@ -1,44 +1,32 @@
-**Polski** | [English](README.en.md)
+🇵🇱 **Polski** | 🇬🇧 [English](README.en.md)
 
-# Kółko i krzyżyk z AI (MiniMax)
+# ❌⭕ Kółko i krzyżyk z AI (MiniMax)
 
-Uogólniona gra w kółko i krzyżyk w C++, w której grasz jako **X** przeciwko komputerowi (**O**) sterowanemu **algorytmem MiniMax z obcinaniem alfa-beta**. Rozmiar planszy i liczbę znaków w rzędzie potrzebnych do wygranej można ustawić.
+![C++](https://img.shields.io/badge/C++-00599C?logo=cplusplus&logoColor=white) ![SFML](https://img.shields.io/badge/SFML_3-8CC445?logo=sfml&logoColor=white)
 
-W repozytorium są dwie wersje:
+> 🎓 Projekt na przedmiot **Projektowanie i Analiza Algorytmów** (Politechnika Wrocławska)
 
-- **`main.cpp`** — wersja konsolowa,
-- **`main_sfml.cpp`** — wersja graficzna w **SFML 3** (sterowanie myszą, przyciski +/− do ustawień, licznik wyników, czas ruchu AI i czas gry).
+Kółko i krzyżyk, ale na sterydach 💪 — plansza od 3×3 do 10×10, do wygranej trzeba ułożyć od 3 do 6 znaków w rzędzie, a przeciwnikiem jest komputer, który myśli algorytmem **MiniMax z obcinaniem alfa-beta**. 🤖
 
-## Zasady i ustawienia
+## ✨ Co zrobiłem
 
-- Plansza **n × n**, od 3 × 3 do 10 × 10 (wersja konsolowa przyjmuje dowolny rozmiar).
-- Liczba znaków w rzędzie do wygranej: od 3 do `min(n, 6)`.
-- Liczą się linie poziome, pionowe i obie przekątne.
-- Wybierasz, kto zaczyna; gra zlicza wygrane X, wygrane O i remisy.
+- 🧠 **AI** — najpierw sprawdza, czy może wygrać albo musi zablokować gracza, a potem przeszukuje drzewo gry MiniMaxem z cięciami alfa-beta
+- 📏 **Głębokość dopasowana do planszy** — 9 ruchów w przód na 3×3, mniej na dużych planszach, żeby AI myślało szybko
+- ⚖️ **Heurystyka** oceny pozycji — liczy linie, które może jeszcze wygrać każdy gracz, i premiuje środek planszy
+- 🖥️ Dwie wersje: **konsolowa** i **graficzna w SFML 3** (sterowanie myszą, licznik wyników, czas ruchu AI)
 
-## Jak działa AI
+## 🛠️ Technologie
 
-1. Jeśli AI może wygrać jednym ruchem — wykonuje go.
-2. Jeśli gracz mógłby wygrać w następnym ruchu — AI go blokuje.
-3. W pozostałych przypadkach uruchamia MiniMax z obcinaniem alfa-beta. Głębokość przeszukiwania zależy od rozmiaru planszy (9 dla 3 × 3, aż do 3 dla plansz 8 × 8 i większych), żeby ruch trwał rozsądnie długo.
-4. Po osiągnięciu limitu głębokości pozycja jest oceniana heurystyką, która nagradza linie zawierające znaki tylko jednego gracza (im więcej znaków, tym wyższa ocena) oraz pola blisko środka planszy.
+C++17 · SFML 3
 
-Po każdym ruchu AI wyświetlany jest czas, jaki na niego potrzebowało.
-
-## Kompilacja i uruchomienie
-
-### Wersja konsolowa
+## 🚀 Uruchomienie
 
 ```bash
-g++ -std=c++17 -O2 main.cpp -o main
-./main
+# wersja konsolowa
+g++ -std=c++17 -O2 main.cpp -o main && ./main
+
+# wersja graficzna (wymaga SFML 3)
+g++ -std=c++17 -O2 main_sfml.cpp -o game -lsfml-graphics -lsfml-window -lsfml-system && ./game
 ```
 
-### Wersja graficzna (SFML 3)
-
-```bash
-g++ -std=c++17 -O2 main_sfml.cpp -o game -lsfml-graphics -lsfml-window -lsfml-system
-./game
-```
-
-Plik `arial.ttf` musi być w katalogu roboczym. Na Windowsie repozytorium zawiera już biblioteki DLL SFML 3 i zbudowany `game.exe`.
+Na Windowsie wystarczy odpalić `game.exe` — biblioteki SFML są w repo. 🎮
